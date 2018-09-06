@@ -1,0 +1,81 @@
+---
+apiVersion: build.knative.dev/v1alpha1
+kind: BuildTemplate
+metadata:
+  name: riff-jvm-buildpackv3
+spec:
+  parameters:
+  - name: IMAGE
+    description: gimme
+  - name: RUN_IMAGE
+    default: projectriff/jvmfunv3:run
+  - name: PACK_USE_HELPERS
+    default: 'true'
+
+  steps:
+  - name: chown-home-workspace
+    image:  packs/v3:latest
+    command: ["chown","-R","packs","/builder/home", "/workspace"]
+  - name: symlink-app
+    image: projectriff/jvmfunv3:detect
+    command: ["ln", "-s", "/workspace", "/launch/app"]
+    volumeMounts:
+    - name: launch
+      mountPath: /launch
+    imagePullPolicy: Always
+  - name: detect
+    image: projectriff/jvmfunv3:detect
+    workingDir: /lifecycleworkspace
+    volumeMounts:
+    - name: lifecycleworkspace
+      mountPath: /lifecycleworkspace
+    - name: launch
+      mountPath: /launch
+    imagePullPolicy: Always
+  - name: analyze
+    image: packs/v3:analyze
+    args: ["${IMAGE}"]
+    env:
+    - name: PACK_USE_HELPERS
+      value: '${PACK_USE_HELPERS}'
+    workingDir: /lifecycleworkspace
+    volumeMounts:
+    - name: lifecycleworkspace
+      mountPath: /lifecycleworkspace
+    - name: launch
+      mountPath: /launch
+    imagePullPolicy: Always
+  - name: build
+    image: projectriff/jvmfunv3:build
+    workingDir: /lifecycleworkspace
+    volumeMounts:
+    - name: lifecycleworkspace
+      mountPath: /lifecycleworkspace
+    - name: launch
+      mountPath: /launch
+    - name: cache
+      mountPath: /cache
+    imagePullPolicy: Always
+  - name: export
+    image: packs/v3:export
+    args: ["${IMAGE}"]
+    env:
+    - name: PACK_RUN_IMAGE
+      value: ${RUN_IMAGE}
+    - name: PACK_USE_HELPERS
+      value: 'true'
+    workingDir: /lifecycleworkspace
+    volumeMounts:
+    - name: lifecycleworkspace
+      mountPath: /lifecycleworkspace
+    - name: launch
+      mountPath: /launch
+    imagePullPolicy: Always
+
+  volumes:
+  - name: launch
+    emptyDir: {}
+  - name: lifecycleworkspace
+    emptyDir: {}
+  - name: cache
+    emptyDir: {}
