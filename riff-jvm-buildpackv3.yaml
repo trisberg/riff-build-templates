@@ -2,7 +2,7 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: BuildTemplate
 metadata:
-  name: riff-nebhale-buildpackv3
+  name: riff
 spec:
   parameters:
   - name: IMAGE
