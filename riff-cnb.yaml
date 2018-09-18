@@ -1,3 +1,14 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: build-cache
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
 ---
 apiVersion: build.knative.dev/v1alpha1
 kind: BuildTemplate
@@ -54,4 +65,6 @@ spec:
 
   volumes:
   - name: app-cache
-    emptyDir: {}
+    persistentVolumeClaim:
+      claimName: build-cache
+
