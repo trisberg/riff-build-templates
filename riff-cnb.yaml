@@ -30,7 +30,7 @@ spec:
 
   steps:
   - name: prepare
-    image: packs/base:0.0.1-rc.191
+    image: packs/base:0.0.1-rc.194
     command: ["/lifecycle/knative-helper"]
     volumeMounts:
     - name: "${CACHE}"
