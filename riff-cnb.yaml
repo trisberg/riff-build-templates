@@ -30,8 +30,11 @@ spec:
 
   steps:
   - name: prepare
-    image: packs/base
+    image: packs/base:0.0.1-rc.191
     command: ["/lifecycle/knative-helper"]
+    volumeMounts:
+    - name: "${CACHE}"
+      mountPath: /cache
     imagePullPolicy: Always
   - name: detect
     image: nebhale/riff-build
